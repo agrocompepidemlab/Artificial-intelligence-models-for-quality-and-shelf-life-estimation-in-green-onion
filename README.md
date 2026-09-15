@@ -2,9 +2,27 @@
 
 Analysis notebooks for estimating the quality and shelf life of green onion (*Allium fistulosum* and hybrid) genotypes, combining consumer perception surveys with physicochemical measurements.
 
+![Graphical abstract](docs/graphical_abstract.png)
+
+## Summary
+
+Artificial intelligence models estimate the quality and shelf life of green onions from multidimensional indicators and RGB images. The work is organized in three phases:
+
+1. **Data acquisition.** A field and virtual survey collects consumer perception of green onion shelf life, and the samples are photographed according to their quality characteristics.
+2. **Quality modeling.** An empirical model, the GreenOQ Index, scores green onions on the variables that matter most to consumers. It combines pseudostem length (*L*), diameter (*D*) and firmness (*F*) as min–max utilities with hue (*h*) and pyruvic acid (*AP*) as Gaussian penalties:
+
+   $$\text{GreenOQ Index}_{gt} = 100 \times \left[0.168\,\frac{L-L_{min}}{L_{max}-L_{min}} + 0.163\,\frac{D-D_{min}}{D_{max}-D_{min}} + 0.255\left(1-\frac{F-F_{min}}{F_{max}-F_{min}}\right) + 0.169\,e^{-\frac{(h-h_{obj})^2}{2\sigma_h^2}} + 0.245\,e^{-\frac{(AP-AP_{obj})^2}{2\sigma_{AP}^2}}\right]$$
+
+   The resulting green onion quality model sorts samples into bad, medium and good quality.
+3. **Shelf-life modeling.** Two AI approaches trained on the images are compared for determining quality and shelf life: color and texture features with XGBoost, and CNN embeddings with a multitask neural network. The result is the green onion shelf-life model.
+
+This repository currently contains the code for phases 1 and 2.
+
 ## Repository structure
 
 ```
+├── docs/
+│   └── graphical_abstract.png             # graphical abstract (figure above)
 ├── data/
 │   └── Phase_1_Consumer_perception.xlsx   # consumer survey responses
 ├── notebooks/
