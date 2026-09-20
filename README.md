@@ -28,12 +28,19 @@ Artificial intelligence models estimate the quality and shelf life of green onio
 │   ├── Phase_2_GreenOQ.ipynb              # GreenOQ quality index (GQI)
 │   └── Phase_3_AI_models.ipynb            # AI models from one photograph (CTD-GB and CNN-MTL)
 ├── results/
+│   ├── README.md                          # the headline result, the metrics and the energy summary
+│   ├── figures/                           # the main result figure
+│   ├── Phase3_complete_metrics.xlsx       # every Phase 3 metric in one workbook (20 sheets)
 │   ├── GreenOQ_results.csv                # GQI per genotype × shelf-life time
 │   └── GQI_classification.csv             # mean GQI and quality class per genotype
+├── scripts/
+│   └── build_phase3_complete_metrics.py   # merges the three Phase 3 workbooks into one
 └── requirements.txt
 ```
 
 The large Phase 3 inputs (photographs, feature caches, stored validation) are not in the repository; see the Phase 3 section below.
+
+**[→ Read the results](results/README.md)** — the headline result, the metrics of both models under the three validation protocols, and the energy cost of training and inference.
 
 ## Phase 1 — Consumer perception
 
