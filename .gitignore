@@ -5,3 +5,10 @@ venv/
 
 # Excel lock files
 ~$*.xlsx
+
+# Phase 3 data: too large for the repository, every reader brings their own copy
+data/dataset_final.csv
+data/cache_*.npz
+data/cache/
+data/photos/
+results/Phase_3_figures/

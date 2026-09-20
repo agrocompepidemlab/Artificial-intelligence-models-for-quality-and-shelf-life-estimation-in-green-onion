@@ -1,6 +1,20 @@
+# Phases 1 and 2
 numpy
 pandas
 matplotlib
 scikit-learn
 openpyxl
 ipykernel
+
+# Phase 3 (AI models on the photographs)
+scipy
+scikit-image
+pillow
+joblib
+shap
+torch            # the CPU build is enough: pip install torch --index-url https://download.pytorch.org/whl/cpu
+torchvision      # ResNet18 pre-trained on ImageNet, used only to extract the embeddings
+
+# Phase 3 was run with: numpy 2.4.6 · pandas 3.0.5 · matplotlib 3.11.1 · scikit-learn 1.9.0 · scipy 1.17.1
+# scikit-image 0.26.0 · pillow 12.3.0 · joblib 1.6.0 · shap 0.51.0 · torch 2.14.0+cpu · torchvision 0.29.0+cpu
+# on Python 3.12, CPU only (AMD Ryzen 5 3500U)
