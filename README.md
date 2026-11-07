@@ -44,15 +44,27 @@ The large Phase 3 inputs (photographs, feature caches, stored validation) are no
 
 ## Phase 1 — Consumer perception
 
-`notebooks/Phase_1_Consumer_perception.ipynb` analyzes the consumer survey for ten genotypes:
+`notebooks/Phase_1_Consumer_perception.ipynb` analyzes the consumer survey for ten genotypes in two modalities, always analyzed separately: **in person** (98 consumers who evaluated real samples stored 2, 6, 10 or 14 days after harvest, DAH; one independent group per time) and **online** (59 respondents who saw photographs of each genotype at the four times). The notebook follows the order of the manuscript figures:
 
-- **a)** Likert (1–5) ratings of visual attributes (pseudostem color, length and diameter; leaf color and length).
-- **b)** Purchase intention by genotype (No / Maybe / Yes).
-- **c)** Acceptance curve across shelf life derived from the *"when would you stop purchasing"* question.
-- **d)** Acceptance curve from direct selection of genotypes at each timepoint (T1–T4).
-- **e)** Acceptance heatmap for the balanced panel (respondents who answered T1–T4).
+| Figure | Analysis |
+|---|---|
+| 1A | Likert (1–5) ratings of five visual attributes (online, n = 59) |
+| 1B | Genotype selections retained relative to 2 DAH (balanced online panel, n = 39); binomial GEE with exchangeable correlation, Bonferroni, cluster-bootstrap 95% CI |
+| 1C, 1D | Sensory shelf life by **survival analysis with interval censoring** (Hough et al., 2003): survival curves per genotype, in person (1C) and online (1D); Weibull or log-normal by AIC, Turnbull estimate |
+| 1E | Stated purchase decision per genotype (No / Maybe / Yes, online, n = 59) |
+| 1F | t50 (day at which 50% of consumers reject) per genotype and modality with 95% bootstrap CI |
+| 2A–2T | Per genotype: word cloud of the open answers (analyzed in Spanish, manual glossary to English, negation marked, terms in ≥ 2 answers) and survival curve with censored observations and 95% CI band |
+| S1a, S1b | n per modality after quality filters, and origin of the online respondents |
 
-Input: `data/Phase_1_Consumer_perception.xlsx` (sheets `Preguntas por material` and `Preguntas en vida util`).
+Quality filters (straight-lining, IQR outliers, low agreement with the majority) leave 95 in-person consumers and an online balanced panel of 39. Every random step uses a fixed seed, so the notebook reproduces the same numbers and figures on every run. Figures are shown only inside the notebook (nothing is written to disk).
+
+Input: `data/Phase_1_Consumer_perception.xlsx`, with three sheets (original Spanish names):
+
+| Sheet | Modality | Content |
+|---|---|---|
+| `Preguntas por material` | online | origin, Likert ratings, and per genotype: *would you buy it?*, *why?* (open text) and *when would you stop buying it?* |
+| `Preguntas en vida util` | online | genotypes the respondent would buy at each time T1–T4 (2, 6, 10, 14 DAH), as material numbers 1–10 |
+| `Vida util Genotipos` | in person | storage time evaluated and, per genotype, *would you buy it?* (yes/no) with the real sample |
 
 ## Phase 2 — GreenOQ Index (GQI)
 
