@@ -9,9 +9,9 @@ Analysis notebooks for estimating the quality and shelf life of green onion (*Al
 Artificial intelligence models estimate the quality and shelf life of green onions from multidimensional indicators and RGB images. The work is organized in three phases:
 
 1. **Data acquisition.** A field and virtual survey collects consumer perception of green onion shelf life, and the samples are photographed according to their quality characteristics.
-2. **Quality modeling.** An empirical model, the GreenOQ Index, scores green onions on the variables that matter most to consumers. It combines pseudostem length (*L*), diameter (*D*) and firmness (*F*) as min–max utilities with hue (*h*) and pyruvic acid (*AP*) as Gaussian penalties:
+2. **Quality modeling.** An empirical model, the Green Onion Quality Index (GQI), scores green onions on the attributes that consumers rated as important: pseudostem length (*L*) and diameter (*D*) as increasing min–max utilities, pseudostem hue (*h*) as a Gaussian utility, leaf hue (*h<sub>l</sub>*) as a one-sided Gaussian utility (only yellowing is penalised) and firmness (*F*) as a decreasing min–max utility, with fixed declared bounds and weights equal to the consumer importance of each attribute:
 
-   $$\text{GreenOQ Index}_{gt} = 100 \times \left[0.168\,\frac{L-L_{min}}{L_{max}-L_{min}} + 0.163\,\frac{D-D_{min}}{D_{max}-D_{min}} + 0.255\left(1-\frac{F-F_{min}}{F_{max}-F_{min}}\right) + 0.169\,e^{-\frac{(h-h_{obj})^2}{2\sigma_h^2}} + 0.245\,e^{-\frac{(AP-AP_{obj})^2}{2\sigma_{AP}^2}}\right]$$
+   $$\text{GQI}_{gt} = 100 \times \left[0.197\,u^{+}(L) + 0.191\,u^{+}(D) + 0.198\,e^{-\frac{(h-h^{*})^2}{2\sigma_h^2}} + 0.193\,G^{-}(h_l) + 0.222\,u^{-}(F)\right]$$
 
    The resulting green onion quality model sorts samples into bad, medium and good quality.
 3. **Shelf-life modeling.** Two AI approaches trained on the photographs are compared for determining quality and shelf life: color and texture descriptors with gradient boosting (**CTD-GB**), and CNN embeddings with a multitask neural network (**CNN-MTL**). The result is the green onion shelf-life model.
@@ -22,7 +22,9 @@ Artificial intelligence models estimate the quality and shelf life of green onio
 ├── docs/
 │   └── graphical_abstract.png             # graphical abstract (figure above)
 ├── data/
-│   └── Phase_1_Consumer_perception.xlsx   # consumer survey responses
+│   ├── Phase_1_Consumer_perception.xlsx   # consumer survey responses
+│   ├── Phase_2_Physicochemical.xlsx       # physicochemical traits of 406 pseudostems (GQI input)
+│   └── Phase_2_GQI.xlsx                   # curated Phase 2 dataset and column dictionary
 ├── notebooks/
 │   ├── Phase_1_Consumer_perception.ipynb  # consumer perception and acceptance analysis
 │   ├── Phase_2_GreenOQ.ipynb              # GreenOQ quality index (GQI)
@@ -66,24 +68,29 @@ Input: `data/Phase_1_Consumer_perception.xlsx`, with three sheets (original Span
 | `Preguntas en vida util` | online | genotypes the respondent would buy at each time T1–T4 (2, 6, 10, 14 DAH), as material numbers 1–10 |
 | `Vida util Genotipos` | in person | storage time evaluated and, per genotype, *would you buy it?* (yes/no) with the real sample |
 
-## Phase 2 — GreenOQ Index (GQI)
+## Phase 2 — Green Onion Quality Index (GQI)
 
-`notebooks/Phase_2_GreenOQ.ipynb` builds a 0–100 quality index from five variables:
+`notebooks/Phase_2_GreenOQ.ipynb` builds a 0–100 index of the **commercial quality** of green onion (commercial size + freshness), following the ten steps of the OECD/JRC (2008) handbook on composite indicators; each step is a section of the notebook.
 
-| Variable | Symbol | Weight source | Utility |
-|---|---|---|---|
-| Pseudostem length | L | Consumer surveys A + B | increasing min–max |
-| Pseudostem diameter | D | Consumer surveys A + B | increasing min–max |
-| Pseudostem hue | h | Consumer surveys A + B | Gaussian around fresh (T1) hue |
-| Firmness | F | PCA communality | decreasing min–max |
-| Pyruvic acid | AP | PCA communality | Gaussian around panel median |
+| Variable | Symbol | Unit | Utility | Fixed parameters | Weight |
+|---|---|---|---|---|---|
+| Pseudostem length | L | cm | increasing min–max | 15–30 cm | 19.7 % |
+| Pseudostem diameter | D | mm | increasing min–max | 5–23 mm | 19.1 % |
+| Pseudostem hue | h | ° | Gaussian | h* = 102.9°, σ = 16.0° | 19.8 % |
+| Leaf hue | h<sub>l</sub> | ° | one-sided Gaussian | h<sub>l</sub>* = 124.1°, σ = 5.2° | 19.3 % |
+| Firmness (puncture force) | F | N | decreasing min–max | 3–30 N | 22.2 % |
 
-The visible and lab blocks are combined with equal mass (50/50). Genotypes are classified as Low / Medium / High quality by terciles of their mean GQI. The notebook also compares earlier weighting schemes (survey only, 60/40) as a sensitivity check.
+- **Variable selection**: consumer importance ≥ 50 %, measured at the four storage times and significant change between genotypes or over storage. Leaf length (29 % importance) and pyruvic acid (measured only at 2 and 14 DAH) are excluded.
+- **Weights**: consumer importance from the published survey (A) and the Phase 1 survey (B). PCA is used only to check the structure of the variables, not to weight them.
+- **Fixed bounds**: adding or removing genotypes does not change the GQI of the others.
+- **Robustness**: alternative weights, leaving one variable out, observed bounds, geometric aggregation and 10 000 random weight vectors.
+- **External validation**: linear mixed model (genotype as random effect), ROC against the consumer shelf life of each genotype compared with storage time alone, and correlation with declared (online) and observed (in-person) consumer acceptance, with bootstrap over genotypes.
 
-Inputs (place them in `data/`; they are not included in the repository):
+The pseudostem diameter is labelled "(cm)" in the source sheet, but its values (5.0–23.0) are only plausible in mm; the notebook treats it as mm.
 
-- `ANALISIS FISICOQUIMICO COMPLETO.xlsx` — sheet `Sheet1`, physicochemical analysis per genotype and time.
-- `AcPiruvicoVidaUtil.xlsx` — sheet `AcPiruvico`, pyruvic acid at T1 and T4.
+Inputs (in `data/`): `Phase_2_Physicochemical.xlsx` (sheet `Sheet1`, 406 pseudostems) and `Phase_1_Consumer_perception.xlsx` (validation). Outputs (in `results/`): `GreenOQ_results.csv` and `GQI_classification.csv`.
+
+> The Phase 3 models were trained on the previous version of the GQI (with pyruvic acid and PCA weights); they will be retrained on this version.
 
 ## Phase 3 — AI models from one photograph
 
