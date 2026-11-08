@@ -80,7 +80,7 @@ Input: `data/Phase_1_Consumer_perception.xlsx`, with three sheets (original Span
 | Leaf hue | h<sub>l</sub> | ° | one-sided Gaussian | h<sub>l</sub>* = 124.1°, σ = 5.2° | 19.3 % |
 | Firmness (puncture force) | F | N | decreasing min–max | 3–30 N | 22.2 % |
 
-- **Variable selection**: consumer importance ≥ 50 %, measured at the four storage times and significant change between genotypes or over storage. Leaf length (29 % importance) and pyruvic acid (measured only at 2 and 14 DAH) are excluded.
+- **Variable selection**: consumer importance ≥ 50 %, measured at the four storage times and significant change between genotypes or over storage. Leaf length (29 % importance) is excluded.
 - **Weights**: consumer importance from the published survey (A) and the Phase 1 survey (B). PCA is used only to check the structure of the variables, not to weight them.
 - **Fixed bounds**: adding or removing genotypes does not change the GQI of the others.
 - **Robustness**: alternative weights, leaving one variable out, observed bounds, geometric aggregation and 10 000 random weight vectors.
