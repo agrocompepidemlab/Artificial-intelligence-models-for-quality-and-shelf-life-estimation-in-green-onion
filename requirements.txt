@@ -18,6 +18,7 @@ scikit-image
 pillow
 joblib
 shap
+python-docx      # Phase 3 tables written as a Word file (scripts/phase3v2_tables_docx.py)
 torch            # the CPU build is enough: pip install torch --index-url https://download.pytorch.org/whl/cpu
 torchvision      # ResNet18 pre-trained on ImageNet, used only to extract the embeddings
 

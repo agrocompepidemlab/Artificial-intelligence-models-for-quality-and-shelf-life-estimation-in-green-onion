@@ -14,13 +14,14 @@ Artificial intelligence models estimate the quality and shelf life of green onio
    $$\text{GQI}_{gt} = 100 \times \left[0.197\,u^{+}(L) + 0.191\,u^{+}(D) + 0.198\,e^{-\frac{(h-h^{*})^2}{2\sigma_h^2}} + 0.193\,G^{-}(h_l) + 0.222\,u^{-}(F)\right]$$
 
    The resulting green onion quality model sorts samples into bad, medium and good quality.
-3. **Shelf-life modeling.** Two AI approaches trained on the photographs are compared for determining quality and shelf life: color and texture descriptors with gradient boosting (**CTD-GB**), and CNN embeddings with a multitask neural network (**CNN-MTL**). The result is the green onion shelf-life model.
+3. **Shelf-life modeling.** Models trained on photographs of the plant alone (background removed, colour corrected per session) estimate the visual class of each pseudostem, the age of a sample (days after harvest), its GQI and its remaining shelf life: scale-free colour, texture and shape descriptors with gradient boosting (**CTD-GB v2**), a frozen ResNet18 embedding with a linear head (**CNN-ridge**), and their **ensemble**, validated with whole sessions, capture days, storage times, genotypes and photo groups left out.
 
 ## Repository structure
 
 ```
 ├── docs/
-│   └── graphical_abstract.png             # graphical abstract (figure above)
+│   ├── graphical_abstract.png             # graphical abstract (figure above)
+│   └── PLAN_ANALISIS_v2.md                # Phase 3 analysis plan, fixed before any result (Spanish)
 ├── data/
 │   ├── Phase_1_Consumer_perception.xlsx   # consumer survey responses
 │   ├── Phase_2_Physicochemical.xlsx       # physicochemical traits of 406 pseudostems (GQI input)
@@ -28,7 +29,7 @@ Artificial intelligence models estimate the quality and shelf life of green onio
 ├── notebooks/
 │   ├── Phase_1_Consumer_perception.ipynb  # consumer perception and acceptance analysis
 │   ├── Phase_2_GreenOQ.ipynb              # GreenOQ quality index (GQI)
-│   └── Phase_3_AI_models.ipynb            # AI models from one photograph (CTD-GB and CNN-MTL)
+│   └── Phase_3_AI_models.ipynb            # Phase 3 (version 2): models on photographs of the plant alone
 ├── results/
 │   ├── README.md                          # the headline result, the metrics and the energy summary
 │   ├── figures/                           # the main result figure
@@ -36,7 +37,8 @@ Artificial intelligence models estimate the quality and shelf life of green onio
 │   ├── GreenOQ_results.csv                # GQI per genotype × shelf-life time
 │   └── GQI_classification.csv             # mean GQI and quality class per genotype
 ├── scripts/
-│   └── build_phase3_complete_metrics.py   # merges the three Phase 3 workbooks into one
+│   ├── phase3v2_*.py                      # Phase 3 image processing, models, validation, occlusion and Word tables
+│   └── build_phase3_complete_metrics.py   # merges the three Phase 3 workbooks of the previous version into one
 └── requirements.txt
 ```
 
@@ -90,44 +92,42 @@ The pseudostem diameter is labelled "(cm)" in the source sheet, but its values (
 
 Inputs (in `data/`): `Phase_2_Physicochemical.xlsx` (sheet `Sheet1`, 406 pseudostems) and `Phase_1_Consumer_perception.xlsx` (validation). Outputs (in `results/`): `GreenOQ_results.csv` and `GQI_classification.csv`.
 
-> The Phase 3 models were trained on the previous version of the GQI (with pyruvic acid and PCA weights); they will be retrained on this version.
 
-## Phase 3 — AI models from one photograph
+## Phase 3 — Models on photographs of the plant alone (version 2)
 
-`notebooks/Phase_3_AI_models.ipynb` estimates the remaining shelf life, the quality state and the GQI of Phase 2 from a single RGB photograph of the pseudostem. It is self-contained: all the code lives in the notebook.
+`notebooks/Phase_3_AI_models.ipynb` is a re-analysis from the original photographs that answers the review of the first version. Its analysis plan (models, hyperparameters, protocols, metrics and references) was fixed before any result was seen and is reproduced at the top of the notebook, together with every later change and its reason (`docs/PLAN_ANALISIS_v2.md`).
 
-Two models are compared, both trained on 16,396 photographs:
+**What the photograph estimates.** The visual class of each pseudostem (On-Grade, Minor defects, Major defects, Decay) is the only label that belongs to the photographed pseudostem. Storage time (days after harvest, DAH), GQI and remaining shelf life belong to the genotype × time cell, because the laboratory analyses were destructive and made on other plants; they are evaluated per cell and always against references that use only the storage days or the genotype.
 
-- **CTD-GB** — 109 color, texture and shape descriptors measured on the segmented pseudostem, with histogram gradient boosting (simple and interpretable).
-- **CNN-MTL** — those descriptors plus 512 ResNet18 embeddings, with a multitask neural network that predicts shelf life, quality state and GQI at once, using the 61 laboratory traits as auxiliary targets.
+**Image processing** (`scripts/phase3v2_common.py`, `phase3v2_images.py`). For each of the 16,396 photographs the plant is segmented on the table (background modelled by a quadratic surface; shadows, reflections, walls, labels, background trays and objects removed), colour-corrected per session with the table as a neutral reference, aligned along its main axis and normalised to a fixed length, since there is no scale reference. The models never see the background.
 
-Validation is bulb-grouped so no bulb appears in both training and test: 5-fold cross-validation (P1), unseen storage time (P2) and unseen genotype (P3), plus repeated validation and a permutation test for leakage control.
+**Models** (`phase3v2_models.py`):
+- **CTD-GB v2**: 99 scale-free colour, texture and shape descriptors of the plant with histogram gradient boosting.
+- **CNN-ridge**: a frozen ResNet18 embedding of the plant crop with ridge or multinomial logistic regression.
+- **Ensemble** of both (the main model).
+
+**Validation** (`phase3v2_validation.py`) leaves out whole units:
+- P1: genotype × time blocks, with five repetitions;
+- P1 by capture day;
+- P2: one storage time;
+- P3: one genotype — the generalization result;
+- P4: one of the two photo groups (five genotypes photographed on their own days), i.e. unseen genotypes and photo days.
+
+Every protocol is compared with trivial, DAH-only, genotype-only and genotype + DAH references, with 95% confidence intervals by cluster bootstrap. The notebook also reports split-conformal prediction intervals, the accept/reject decision against a fixed days rule with cost curves, a leakage ladder from random photographs to unseen genotypes, and occlusion maps (`phase3v2_occlusion.py`).
 
 ### Data
 
-Place these files in `data/`, or point the environment variable `GREEN_ONION_DATA` at the folder that holds them. They are not in the repository because of their size:
+Point `GREEN_ONION_DATA` at the folder with `dataset_final.csv` and `cache/` (`photo_metadata.csv`, `tramos.csv` and the stored results of the previous version), and `GREEN_ONION_V2` at the folder with the version-2 caches: `features_v2.npz`, `meta_v2.csv`, `crops.npy`, `examples_v2.npz`, `validation_v2.pkl`, `ladder_v2.pkl`, `occlusion_v2.npz` and `tables_v2.pkl`. They are not in the repository because of their size. The notebook only reads these caches and runs in a few minutes.
 
-| File | What it is |
-|---|---|
-| `dataset_final.csv` | 16,396 photographs with genotype, storage time, quality state, shelf life and 61 laboratory traits |
-| `cache_descriptores_mejorados.npz` | the 109 descriptors already measured on every photograph |
-| `cache_embeddings_cnn.npz` | the 512 ResNet18 embeddings of every photograph |
-| `GQI_vs_modelo_completo_datos.xlsx` | GQI of Phase 2, per genotype × storage time |
-| `cache/predictions.pkl`, `cache/extra_validation.pkl`, `cache/cnn_mtl_demo.pt` | stored validation output and the demo model, to skip the long runs |
+To rebuild the caches from the photographs, set `GREEN_ONION_PHOTOS` to the folder that contains `T1`–`T4`, add `scripts/` to `PYTHONPATH`, and run, in order:
+1. `phase3v2_images.py` (about 1.5 h on 7 CPU processes);
+2. `phase3v2_embed.py` (about 50 min);
+3. `phase3v2_examples.py`;
+4. `phase3v2_validation.py validation_v2.pkl` (about 3 h; each fold is saved and the run resumes if interrupted);
+5. `phase3v2_validation.py ladder_v2.pkl --ladder`;
+6. `phase3v2_occlusion.py`.
 
-`Phase_1_Consumer_perception.xlsx` is already in `data/`. The photographs themselves are not needed to reproduce any number — the two caches hold everything the models read. They are only required to rebuild those caches or to display photographs; if you have them, set `GREEN_ONION_PHOTOS` to the folder containing `GreenOnionCap3`.
-
-### Running it
-
-The three flags at the top of the notebook control how much is recomputed. With all of them `False` (the default) the notebook loads the stored results and runs in about 20 minutes:
-
-| Flag | `True` recomputes | Time |
-|---|---|---|
-| `RUN_FEATURE_EXTRACTION` | the two image-feature caches (needs the photographs) | several hours |
-| `RUN_FULL_VALIDATION` | P1, P2, P3 and the grouped split | ~50 min |
-| `RUN_EXTRA_VALIDATION` | repeated validation and the permutation test | ~30 min |
-
-Outputs go to `results/`: figures at 300 dpi in `results/Phase_3_figures/` (PNG and PDF), and the workbooks `Phase3_hyperparameters_and_validation.xlsx`, `Phase3_results_by_model.xlsx` and `Phase3_results_dataset.csv`/`.xlsx`.
+`phase3v2_tables_docx.py` writes the tables in English to a Word file.
 
 ## How to run
 
