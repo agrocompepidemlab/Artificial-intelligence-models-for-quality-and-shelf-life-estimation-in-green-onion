@@ -3,12 +3,17 @@ __pycache__/
 .venv/
 venv/
 
-# Excel lock files
-~$*.xlsx
+# Office lock files
+~$*
 
-# Phase 3 data: too large for the repository, every reader brings their own copy
-data/dataset_final.csv
-data/cache_*.npz
-data/cache/
+# Phase 3: everything the notebook reads is in data/phase3/. Only the files needed to rebuild the caches from the
+# photographs are left out (too large): the photographs, the aligned crops (2.3 GB), the per-session outputs,
+# the per-fold files of the validation and the uncompressed validation pickle (the repository keeps the .gz).
 data/photos/
-results/Phase_3_figures/
+data/phase3/photos/
+data/phase3/cache_v2/crops.npy
+data/phase3/cache_v2/sessions/
+data/phase3/cache_v2/folds_validation/
+data/phase3/cache_v2/folds_ladder/
+data/phase3/cache_v2/validation_v2.pkl
+data/phase3/cache/background.npz

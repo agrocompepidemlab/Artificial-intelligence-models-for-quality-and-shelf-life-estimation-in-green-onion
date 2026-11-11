@@ -10,7 +10,7 @@ from skimage import color, measure, morphology, transform
 from skimage.feature import graycomatrix, graycoprops, local_binary_pattern
 
 ROOT = Path(__file__).resolve().parents[1]                                   # el repositorio
-DATA = Path(os.environ.get("GREEN_ONION_DATA", ROOT / "data"))               # dataset_final.csv, cache/tramos.csv
+DATA = Path(os.environ.get("GREEN_ONION_DATA", ROOT / "data" / "phase3"))               # dataset_final.csv, cache/tramos.csv
 PHOTOS = Path(os.environ.get("GREEN_ONION_PHOTOS", DATA / "photos"))         # carpeta que contiene T1–T4
 SEG_SIDE = 384          # resolución a la que se validó `segment`
 WORK_DRAFT = (1200, 800)    # decodificación JPEG reducida (1/4 → 1296 × 864)

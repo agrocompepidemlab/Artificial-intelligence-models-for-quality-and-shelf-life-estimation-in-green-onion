@@ -5,7 +5,7 @@ La segmentación es la misma función `segment` del notebook de la Fase 3."""
 import os
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]                       # el repositorio
-DATA = Path(os.environ.get("GREEN_ONION_DATA", ROOT / "data"))   # dataset_final.csv y cachés de rasgos
+DATA = Path(os.environ.get("GREEN_ONION_DATA", ROOT / "data" / "phase3"))   # dataset_final.csv y cachés de rasgos
 PHOTOS = Path(os.environ.get("GREEN_ONION_PHOTOS", DATA / "photos"))   # carpeta que contiene T1–T4
 LAB_FILE = ROOT / "data" / "Phase_2_Physicochemical.xlsx"
 

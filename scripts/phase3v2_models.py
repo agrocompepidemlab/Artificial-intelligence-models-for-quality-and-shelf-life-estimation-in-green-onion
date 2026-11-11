@@ -15,7 +15,7 @@ from sklearn.model_selection import GroupKFold, LeaveOneGroupOut
 warnings.filterwarnings("ignore")
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))         # el repositorio
-DATA = os.environ.get("GREEN_ONION_DATA", os.path.join(_ROOT, "data"))
+DATA = os.environ.get("GREEN_ONION_DATA", os.path.join(_ROOT, "data", "phase3"))
 CACHE = os.environ.get("GREEN_ONION_V2", os.path.join(DATA, "cache_v2"))
 LAB_FILE = os.path.join(_ROOT, "data", "Phase_2_Physicochemical.xlsx")
 ALPHA = 0.10

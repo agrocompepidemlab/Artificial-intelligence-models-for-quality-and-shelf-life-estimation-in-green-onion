@@ -22,29 +22,32 @@ Artificial intelligence models estimate the quality and shelf life of green onio
 ├── docs/
 │   ├── graphical_abstract.png             # graphical abstract (figure above)
 │   └── PLAN_ANALISIS_v2.md                # Phase 3 analysis plan, fixed before any result (Spanish)
-├── data/
+├── data/                                  # everything the notebooks read (see data/README.md)
+│   ├── README.md                          # what each file is and what produces it
 │   ├── Phase_1_Consumer_perception.xlsx   # consumer survey responses
 │   ├── Phase_2_Physicochemical.xlsx       # physicochemical traits of 406 pseudostems (GQI input)
-│   └── Phase_2_GQI.xlsx                   # curated Phase 2 dataset and column dictionary
+│   ├── Phase_2_GQI.xlsx, Phase_2_Discriminant_bands.xlsx, Phase_2_Metabolomics.csv   # Phase 2 supporting data
+│   └── phase3/                            # Phase 3 inputs and caches (≈ 200 MB): dataset_final.csv, cache/, cache_v2/
 ├── notebooks/
 │   ├── Phase_1_Consumer_perception.ipynb  # consumer perception and acceptance analysis
 │   ├── Phase_2_GreenOQ.ipynb              # GreenOQ quality index (GQI)
 │   └── Phase_3_AI_models.ipynb            # Phase 3 (version 2): models on photographs of the plant alone
 ├── results/
-│   ├── README.md                          # the headline result, the metrics and the energy summary
-│   ├── figures/                           # the main result figure
-│   ├── Phase3_complete_metrics.xlsx       # every Phase 3 metric in one workbook (20 sheets)
+│   ├── README.md                          # what each result file is and Phase 3 in numbers
 │   ├── GreenOQ_results.csv                # GQI per genotype × shelf-life time
-│   └── GQI_classification.csv             # mean GQI and quality class per genotype
+│   ├── GQI_classification.csv             # mean GQI and quality class per genotype
+│   ├── Phase3_tables_supplementary_material_6.docx   # the three Phase 3 tables of the article (English)
+│   └── previous_version/                  # results of the first version of Phase 3, superseded
 ├── scripts/
 │   ├── phase3v2_*.py                      # Phase 3 image processing, models, validation, occlusion and Word tables
-│   └── build_phase3_complete_metrics.py   # merges the three Phase 3 workbooks of the previous version into one
+│   ├── phase3_*.py                        # first version: validation, leakage ladder and background-only control (for comparison)
+│   └── build_phase3_complete_metrics.py   # first version: merges its three workbooks into one
 └── requirements.txt
 ```
 
-The large Phase 3 inputs (photographs, feature caches, stored validation) are not in the repository; see the Phase 3 section below.
+The only inputs left out are the Phase 3 photographs and the files needed to rebuild the caches from them; the notebooks do not need them.
 
-**[→ Read the results](results/README.md)** — the headline result, the metrics of both models under the three validation protocols, and the energy cost of training and inference.
+**[→ Read the results](results/README.md)** — what each result file is and Phase 3 in numbers.
 
 ## Phase 1 — Consumer perception
 
@@ -115,11 +118,34 @@ Inputs (in `data/`): `Phase_2_Physicochemical.xlsx` (sheet `Sheet1`, 406 pseudos
 
 Every protocol is compared with trivial, DAH-only, genotype-only and genotype + DAH references, with 95% confidence intervals by cluster bootstrap. The notebook also reports split-conformal prediction intervals, the accept/reject decision against a fixed days rule with cost curves, a leakage ladder from random photographs to unseen genotypes, and occlusion maps (`phase3v2_occlusion.py`).
 
+### Organisation of the notebook
+
+The notebook follows the explanation, not the figure numbers:
+
+1. data and design;
+2. from the photograph to the plant (Fig. 5);
+3. models and validation (Fig. 6);
+4. performance under each protocol (Fig. 7);
+5. what a photograph tells about an unseen genotype (Fig. 8);
+6. what the model looks at;
+7. limitations;
+8. the tables of the article.
+
+Each panel is drawn separately, without a panel letter, and the line under it gives its place in the article (e.g. "Fig. 5, panel A"). Each section prints detail tables D1–D14 where they are computed, and section 8 summarises them in the three tables of Supplementary material 6:
+
+| Table | Content | From |
+|---|---|---|
+| 1 | Samples, labels and photographs per genotype | D1–D5 |
+| 2 | Validation of the photo models under the five protocols | D6, D7, D9 |
+| 3 | (a) Leakage ladder and background-only control; (b) accept/reject decision and conformal intervals | D10–D14 |
+
+`python scripts/phase3v2_tables_docx.py` writes them to `results/Phase3_tables_supplementary_material_6.docx`, in English with their notes.
+
 ### Data
 
-Point `GREEN_ONION_DATA` at the folder with `dataset_final.csv` and `cache/` (`photo_metadata.csv`, `tramos.csv` and the stored results of the previous version), and `GREEN_ONION_V2` at the folder with the version-2 caches: `features_v2.npz`, `meta_v2.csv`, `crops.npy`, `examples_v2.npz`, `validation_v2.pkl`, `ladder_v2.pkl`, `occlusion_v2.npz` and `tables_v2.pkl`. They are not in the repository because of their size. The notebook only reads these caches and runs in a few minutes.
+Everything the notebook reads is in `data/phase3/` (about 200 MB; `data/README.md` lists each file), so it runs from a fresh clone without the photographs. The largest cache, `validation_v2.pkl`, is stored gzip-compressed. The 16 crops of Fig. 5B are stored separately, so the 2.3 GB of aligned crops are not needed. To use another copy of the data, set `GREEN_ONION_DATA` (folder with `dataset_final.csv`) or `GREEN_ONION_V2` (folder with the version-2 caches).
 
-To rebuild the caches from the photographs, set `GREEN_ONION_PHOTOS` to the folder that contains `T1`–`T4`, add `scripts/` to `PYTHONPATH`, and run, in order:
+To rebuild the caches from the photographs, set `GREEN_ONION_PHOTOS` to the folder that contains `T1`–`T4`, add `scripts/` to `PYTHONPATH`, and run, in order (output folder `data/phase3/cache_v2`):
 1. `phase3v2_images.py` (about 1.5 h on 7 CPU processes);
 2. `phase3v2_embed.py` (about 50 min);
 3. `phase3v2_examples.py`;
@@ -127,7 +153,7 @@ To rebuild the caches from the photographs, set `GREEN_ONION_PHOTOS` to the fold
 5. `phase3v2_validation.py ladder_v2.pkl --ladder`;
 6. `phase3v2_occlusion.py`.
 
-`phase3v2_tables_docx.py` writes the tables in English to a Word file.
+The photographs are not in the repository.
 
 ## How to run
 
@@ -137,5 +163,13 @@ jupyter lab   # or open the notebooks in VS Code
 ```
 
 The notebooks can be run from the repository root or from `notebooks/`; paths are resolved relative to the repository. Figures use Times New Roman, which must be installed on the system.
+
+**Reproducibility.** Every random step uses a fixed seed and every input is in `data/`. On 10 November 2026 the three notebooks were re-executed from the repository and compared with the stored versions:
+
+- **Phase 1:** the same text and byte-identical figures.
+- **Phase 2:** the same numbers and figures, and the same `results/*.csv`.
+- **Phase 3:** the 14 detail tables are identical and the 32 figures are byte-identical.
+
+The package versions used are listed at the end of `requirements.txt`. Phases 1–2 were run on Python 3.12.2 and Phase 3 on Python 3.11.9; other versions may change the last decimals.
 
 Source spreadsheets keep their original Spanish sheet names, column names and answer labels (e.g. `Genotipo`, `Tiempo`, `Tal vez`, `Sí`); the notebooks refer to them as-is.
