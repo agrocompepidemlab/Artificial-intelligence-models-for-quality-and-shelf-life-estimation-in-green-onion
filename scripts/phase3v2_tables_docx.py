@@ -212,5 +212,14 @@ notes("(a) v1 = CTD-GB with the previous segmentation; v2 = ensemble on the plan
       f"{k.loc[16, 'MAE GQI']:.2f} GQI points with 1, 5 and 16 pseudostems photographed.", ABBR)
 
 OUT.parent.mkdir(parents=True, exist_ok=True)
-doc.save(OUT)
+# same bytes on every run: fixed dates in the document properties and in the zip entries
+import io, zipfile, datetime
+FIXED = datetime.datetime(2026, 11, 10)
+doc.core_properties.created = doc.core_properties.modified = FIXED
+doc.core_properties.revision = 1
+buf = io.BytesIO(); doc.save(buf)
+src = zipfile.ZipFile(io.BytesIO(buf.getvalue()))
+with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as dst:
+    for info in src.infolist():
+        dst.writestr(zipfile.ZipInfo(info.filename, date_time=FIXED.timetuple()[:6]), src.read(info.filename), zipfile.ZIP_DEFLATED)
 print("saved", OUT)
