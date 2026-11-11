@@ -31,17 +31,15 @@ Artificial intelligence models estimate the quality and shelf life of green onio
 ├── notebooks/
 │   ├── Phase_1_Consumer_perception.ipynb  # consumer perception and acceptance analysis
 │   ├── Phase_2_GreenOQ.ipynb              # GreenOQ quality index (GQI)
-│   └── Phase_3_AI_models.ipynb            # Phase 3 (version 2): models on photographs of the plant alone
+│   └── Phase_3_AI_models.ipynb            # Phase 3: models on photographs of the plant alone
 ├── results/
 │   ├── README.md                          # what each result file is and Phase 3 in numbers
 │   ├── GreenOQ_results.csv                # GQI per genotype × shelf-life time
 │   ├── GQI_classification.csv             # mean GQI and quality class per genotype
-│   ├── Phase3_tables_supplementary_material_6.docx   # the three Phase 3 tables of the article (English)
-│   └── previous_version/                  # results of the first version of Phase 3, superseded
+│   └── Phase3_tables_supplementary_material_6.docx   # the three Phase 3 tables of the article (English)
 ├── scripts/
 │   ├── phase3v2_*.py                      # Phase 3 image processing, models, validation, occlusion and Word tables
-│   ├── phase3_*.py                        # first version: validation, leakage ladder and background-only control (for comparison)
-│   └── build_phase3_complete_metrics.py   # first version: merges its three workbooks into one
+│   └── phase3_*.py                        # whole-photograph comparison: validation, leakage ladder and background-only control
 └── requirements.txt
 ```
 
@@ -96,9 +94,9 @@ The pseudostem diameter is labelled "(cm)" in the source sheet, but its values (
 Inputs (in `data/`): `Phase_2_Physicochemical.xlsx` (sheet `Sheet1`, 406 pseudostems) and `Phase_1_Consumer_perception.xlsx` (validation). Outputs (in `results/`): `GreenOQ_results.csv` and `GQI_classification.csv`.
 
 
-## Phase 3 — Models on photographs of the plant alone (version 2)
+## Phase 3 — Models on photographs of the plant alone
 
-`notebooks/Phase_3_AI_models.ipynb` is a re-analysis from the original photographs that answers the review of the first version. Its analysis plan (models, hyperparameters, protocols, metrics and references) was fixed before any result was seen and is reproduced at the top of the notebook, together with every later change and its reason (`docs/PLAN_ANALISIS_v2.md`).
+`notebooks/Phase_3_AI_models.ipynb` analyses the original photographs. Its analysis plan (models, hyperparameters, protocols, metrics and references) was fixed before any result was seen and is reproduced at the top of the notebook, together with every later change and its reason (`docs/PLAN_ANALISIS_v2.md`).
 
 **What the photograph estimates.** The visual class of each pseudostem (On-Grade, Minor defects, Major defects, Decay) is the only label that belongs to the photographed pseudostem. Storage time (days after harvest, DAH), GQI and remaining shelf life belong to the genotype × time cell, because the laboratory analyses were destructive and made on other plants; they are evaluated per cell and always against references that use only the storage days or the genotype.
 
@@ -116,7 +114,7 @@ Inputs (in `data/`): `Phase_2_Physicochemical.xlsx` (sheet `Sheet1`, 406 pseudos
 - P3: one genotype — the generalization result;
 - P4: one of the two photo groups (five genotypes photographed on their own days), i.e. unseen genotypes and photo days.
 
-Every protocol is compared with trivial, DAH-only, genotype-only and genotype + DAH references, with 95% confidence intervals by cluster bootstrap. The notebook also reports split-conformal prediction intervals, the accept/reject decision against a fixed days rule with cost curves, a leakage ladder from random photographs to unseen genotypes, and occlusion maps (`phase3v2_occlusion.py`).
+Every protocol is compared with trivial, DAH-only, genotype-only and genotype + DAH references, with 95% confidence intervals by cluster bootstrap. As a control, the same protocols are run on the whole photograph, background included (CTD-GB and CNN-MTL, `scripts/phase3_*.py`); it is labelled v1 in Tables 2 and 3a and shows why the models see only the plant. The notebook also reports split-conformal prediction intervals, the accept/reject decision against a fixed days rule with cost curves, a leakage ladder from random photographs to unseen genotypes, and occlusion maps (`phase3v2_occlusion.py`).
 
 ### Organisation of the notebook
 

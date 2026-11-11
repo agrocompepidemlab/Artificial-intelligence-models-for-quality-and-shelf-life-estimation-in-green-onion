@@ -21,14 +21,14 @@ or `GREEN_ONION_V2` (for `cache_v2/`).
 
 | File | Content | Produced by |
 |---|---|---|
-| `dataset_final.csv` | One row per photograph (16,396): original path, storage time, visual class, genotype, DAH, consumer shelf life and the laboratory traits matched to it | Data preparation (kept unchanged since the first version) |
-| `cache_embeddings_cnn.npz` | ResNet18 embedding of each whole photograph, used to find runs of photographs of the same pseudostem | First version |
-| `cache_descriptores_mejorados.npz` | Colour and texture descriptors of the first version | First version (`scripts/phase3_validation.py` reads it) |
+| `dataset_final.csv` | One row per photograph (16,396): original path, storage time, visual class, genotype, DAH, consumer shelf life and the laboratory traits matched to it | Data preparation (never modified) |
+| `cache_embeddings_cnn.npz` | ResNet18 embedding of each whole photograph, used to find runs of photographs of the same pseudostem | Earlier whole-photograph analysis |
+| `cache_descriptores_mejorados.npz` | Colour and texture descriptors of the whole photograph (CTD-GB v1) | Earlier whole-photograph analysis (`scripts/phase3_validation.py` reads it) |
 | `cache/photo_metadata.csv` | Date and time of each photograph (EXIF) | Phase 3 notebook (`RUN_METADATA = True`, needs the photographs) |
 | `cache/tramos.csv` | Pseudostem of each photograph (contiguous runs) | Phase 3 notebook (`RUN_TRAMOS = True`) |
-| `cache/validation.pkl` | Predictions of the first version under the same protocols, for comparison | `scripts/phase3_validation.py` |
-| `cache/leakage_ladder.pkl` | Leakage ladder of the first version | `scripts/phase3_leakage_ladder.py` |
-| `cache/background_models.pkl` | Accuracy of models that see only the background (first version) | `scripts/phase3_background_control.py` |
+| `cache/validation.pkl` | Predictions of the whole-photograph comparison (CTD-GB v1, CNN-MTL v1) under the same protocols | `scripts/phase3_validation.py` |
+| `cache/leakage_ladder.pkl` | Leakage ladder of the whole-photograph comparison | `scripts/phase3_leakage_ladder.py` |
+| `cache/background_models.pkl` | Accuracy of models that see only the background, plant erased (Table 3a) | `scripts/phase3_background_control.py` |
 | `cache_v2/features_v2.npz` | 99 scale-free descriptors and the ResNet18 embedding of the plant alone, per photograph | `scripts/phase3v2_images.py`, `phase3v2_embed.py` |
 | `cache_v2/meta_v2.csv` | Segmentation result per photograph (plant found, length, rotation, colour gain of its session) | `scripts/phase3v2_embed.py` |
 | `cache_v2/examples_v2.npz` | Example photographs with their mask (Fig. 5A) | `scripts/phase3v2_examples.py` |

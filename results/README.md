@@ -8,7 +8,6 @@ files. The figures of every phase are shown inside the notebooks and are not wri
 | `GreenOQ_results.csv` | 2 | GQI per genotype × storage time (`notebooks/Phase_2_GreenOQ.ipynb`) |
 | `GQI_classification.csv` | 2 | Mean GQI and quality class per genotype (`notebooks/Phase_2_GreenOQ.ipynb`) |
 | `Phase3_tables_supplementary_material_6.docx` | 3 | The three Phase 3 tables of the article, in English with their notes (`scripts/phase3v2_tables_docx.py`, from section 8 of `notebooks/Phase_3_AI_models.ipynb`) |
-| `previous_version/` | 3 | Results of the first version of Phase 3 (whole photograph), superseded; kept for transparency |
 
 ## Phase 3 in numbers
 
@@ -26,5 +25,6 @@ Ensemble of CTD-GB v2 and CNN-ridge on photographs of the plant alone, validated
 - **Accept / reject (P3):** the photograph together with the storage days lowers false acceptance from 15.5% (days rule) to
   10.7% of the photographs, at the cost of 5.4% false rejection (0% for the days rule).
 - **Unseen genotypes and photo days (P4)** are harder: class accuracy 0.40, R² 0.48 for DAH and 0.08 for GQI.
-- **Leakage control:** with random photographs instead of whole units the R² of DAH would reach 0.86. In the first version,
-  a model that saw only the background reached 0.97 accuracy for the storage time. Both are in Table 3.
+- **Leakage control:** with random photographs instead of whole units the R² of DAH would reach 0.86. On the whole
+  photograph, a model that sees only the background (plant erased) reaches 0.97 accuracy for the storage time, which is
+  why the models see only the plant. Both are in Table 3a.
