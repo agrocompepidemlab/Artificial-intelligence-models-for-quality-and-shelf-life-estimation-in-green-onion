@@ -58,6 +58,7 @@ The only inputs left out are the Phase 3 photographs and the files needed to reb
 | 1C, 1D | Sensory shelf life by **survival analysis with interval censoring** (Hough et al., 2003): survival curves per genotype, in person (1C) and online (1D); Weibull or log-normal by AIC, Turnbull estimate |
 | 1E | Stated purchase decision per genotype (No / Maybe / Yes, online, n = 59) |
 | 1F | t50 (day at which 50% of consumers reject) per genotype and modality with 95% bootstrap CI |
+| Table by genotype | n and t50 [95% CI] per modality, with the change in online selection over time: Cochran's Q and, for each time vs 2 DAH, the GEE odds ratio [95% CI] and the exact McNemar p (Bonferroni); the table of Supplementary material 5 (the detail of every test stays in the notebook) |
 | 2A–2T | Per genotype: word cloud of the open answers (analyzed in Spanish, manual glossary to English, negation marked, terms in ≥ 2 answers) and survival curve with censored observations and 95% CI band |
 | S1a, S1b | n per modality after quality filters, and origin of the online respondents |
 
@@ -87,7 +88,8 @@ Input: `data/Phase_1_Consumer_perception.xlsx`, with three sheets (original Span
 - **Weights**: consumer importance from the published survey (A) and the Phase 1 survey (B). PCA is used only to check the structure of the variables, not to weight them.
 - **Fixed bounds**: adding or removing genotypes does not change the GQI of the others.
 - **Robustness**: alternative weights, leaving one variable out, observed bounds, geometric aggregation and 10 000 random weight vectors.
-- **External validation**: linear mixed model (genotype as random effect), ROC against the consumer shelf life of each genotype compared with storage time alone, and correlation with declared (online) and observed (in-person) consumer acceptance, with bootstrap over genotypes.
+- **External validation**: linear mixed model (genotype as random effect), ROC against the consumer shelf life of each genotype (online t50 from Phase 1, truncated at 14 d; the same values used in Phase 3) compared with storage time alone, and correlation with declared (online) and observed (in-person) consumer acceptance, with bootstrap over genotypes.
+- **Tables of the article**: the detail tables S2a–S4 are printed where they are computed; section 11 summarises them in the two tables of Supplementary material 2, Table S1 (construction) and Table S2 (validation and robustness).
 
 The pseudostem diameter is labelled "(cm)" in the source sheet, but its values (5.0–23.0) are only plausible in mm; the notebook treats it as mm.
 
