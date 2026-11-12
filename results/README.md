@@ -23,7 +23,8 @@ Ensemble of CTD-GB v2 and CNN-ridge on photographs of the plant alone, validated
 | Remaining shelf life (cell) | R² 0.61 [0.52, 0.63]; with the storage days 0.69 [0.59, 0.77] | DAH only 0.59 [0.44, 0.71]; difference +0.02 [−0.12, 0.15] and +0.11 [0.01, 0.21] |
 
 - **Accept / reject (P3):** the photograph together with the storage days lowers false acceptance from 15.5% (days rule) to
-  10.7% of the photographs, at the cost of 5.4% false rejection (0% for the days rule).
+  10.6% of the photographs, at the cost of 10.2% false rejection (5.0% for the days rule, which rejects at 14 DAH the two
+  genotypes whose shelf life exceeds 14 d). A sample is rejected when its storage time exceeds the shelf life of its genotype.
 - **Unseen genotypes and photo days (P4)** are harder: class accuracy 0.40, R² 0.48 for DAH and 0.08 for GQI.
 - **Leakage control:** with random photographs instead of whole units the R² of DAH would reach 0.86. On the whole
   photograph, a model that sees only the background (plant erased) reaches 0.97 accuracy for the storage time, which is

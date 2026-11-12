@@ -107,7 +107,7 @@ def table(df, widths, group_cols=0, bold_last=False):
             t.rows[i]._tr.get_or_add_trPr().append(OxmlElement("w:cantSplit"))
 
 
-ABBR = ("DAH = days after harvest (storage age of the sample); GQI = global quality index (Phase 2); P1 = genotype × time blocks "
+ABBR = ("DAH = days after harvest (storage age of the sample); GQI = Green Onion Quality Index (Phase 2); P1 = genotype × time blocks "
         "(sessions) left out; P1 · capture day = capture days left out; P2 = storage time left out; P3 = genotype left out; P4 = one "
         "of the two photo groups left out (five genotypes photographed on their own days), i.e. unseen genotypes and photo days.")
 CI = ("95% confidence interval from a cluster bootstrap (2000 resamples of genotype × time blocks in P1, P1 · capture day and P2; "
@@ -128,8 +128,7 @@ def _days(x):
 
 
 dates = {g: _days(x) for g, x in D1.sort_values(["Photo group", "Time"]).groupby("Photo group")}
-prev, cur = D3.iloc[0], D3.iloc[1]
-n_prev = int(sum(prev[c] for c in D3.columns if c.endswith("DAH")))
+cur = D3.iloc[1]
 r5 = {r["Attribute (camera region)"]: (r["r, raw camera"], r["r, corrected camera"]) for _, r in D5.iterrows()}
 tot = SM1.iloc[-1]["Photographs (valid)"]
 n_all, n_valid = tot.split(" (")[0], tot.split("(")[1].rstrip(")")
@@ -140,7 +139,8 @@ notes("Photo groups: five genotypes each, photographed on their own days, group 
       "day; 4 storage times × 4 visual classes = 16 sessions per genotype, balanced by design.",
       "t50 = storage time at which half of the respondents would no longer buy the genotype (Phase 1, online survey, survival analysis); "
       "values above 14 d are truncated at 14 d, the last observed time. Remaining shelf life = shelf life used − DAH; a sample is to be "
-      "rejected when it is ≤ 0, i.e. from the storage time in the column 'Rejected from'.",
+      "rejected when it is below 0 (storage time beyond the shelf life), i.e. from the storage time in the column 'Rejected from'; "
+      "— = not rejected within the 14 days evaluated.",
       f"Valid = plant segmented and passing the length check ({n_valid} of {n_all}; ≥ {D4['Plant found (%)'].min():.1f}% in every "
       "storage time × visual class). The plant is segmented on the table (background modelled by a quadratic surface), cleaned of "
       "shadows, reflections, walls and objects, aligned along its main axis with the base on the left and normalised in length (no scale "
@@ -152,8 +152,7 @@ notes("Photo groups: five genotypes each, photographed on their own days, group 
       f"{r5['Leaf hue (tip)'][0]:.2f} / {r5['Leaf hue (tip)'][1]:.2f} (base = left 30% of the aligned plant; tip = right 30%).",
       "Pseudostems = contiguous runs of photographs (Ward clustering of consecutive photographs within each session; "
       f"{cur['Per session, median (range)']} per session, median (range)); no pseudostem spans two sessions, so the session-level "
-      f"validation does not depend on this identification. The previous version counted {n_prev:,} units, "
-      f"{prev['Single-photo units at 2 DAH (%)']:.0f}% of them single photographs at 2 DAH.")
+      "validation does not depend on this identification.")
 
 # ====================================================================================== Table 2
 caption("2", "Validation of the photo models (plant only) and of the metadata references with sessions (P1), capture days, storage "
@@ -185,20 +184,23 @@ part("(b) Accept / reject decision and 90% split-conformal prediction intervals 
 w = [5.6, 5.1]; table(T["SM6_3B"], w + [(USABLE - sum(w)) / 5] * 5, group_cols=1)
 
 D11, D12, D14 = T["D11"], T["D12"], T["D14"]
+pct_rej = float(D12.iloc[0]["Accepted, should reject (%)"] + D12.iloc[0]["Rejected, should reject (%)"])   # % de fotos a rechazar
 s3 = D12.set_index(["Protocol", "Decision rule"]).loc["P3 · unseen genotype"]
 k = D11.set_index(D11.columns[0])
 emb = D14[D14["Background features"].str.startswith("ResNet")].set_index("Target").loc["Storage time"]
-notes("(a) v1 = CTD-GB with the previous segmentation; v2 = ensemble on the plant alone; same partitions for both. The drop from the "
+notes("(a) v1 = CTD-GB on a mask that kept part of the background, evaluated as a control; v2 = ensemble on the plant alone; same "
+      "partitions for both. The drop from the "
       "random-photograph partition to the session-level partitions is the part of the performance that came from recognising the "
       "session or the pseudostem rather than the sample (Roberts et al., 2017; Kapoor and Narayanan, 2023). Background only (v1) = "
       "accuracy of a model that sees only the Lab colour statistics of the photograph outside the dilated plant mask (chance 0.25 for "
       "storage time and class, 0.10 for genotype); with a ResNet18 embedding of the scene without the plant, storage-time accuracy was "
-      + ", ".join(f"{emb[c]:.2f}" for c in ["Random photographs", "Session left out", "Capture day left out"]) +
+      + ", ".join(f"{emb[c]:.2f}" for c in ["Random photographs", "Genotype × time block left out", "Capture day left out"]) +
       " with the same three partitions. The background identified the session and, through it, the storage time: the shortcut that "
-      "version 2 removes.",
-      "(b) Truth: reject when the remaining shelf life is ≤ 0 (40.2% of the photographs). False acceptance = accepted although it should "
+      "segmenting the plant alone removes.",
+      f"(b) Truth: reject when the remaining shelf life is below 0 ({pct_rej:.1f}% of the photographs). False acceptance = accepted "
+      "although it should "
       "be rejected; false rejection = rejected although acceptable. Days rule = reject when DAH > 10.7 d (median shelf life of the ten "
-      "genotypes); Ensemble = reject when its estimate of the remaining shelf life is ≤ 0; '+ conformal' = the photograph decides only "
+      "genotypes); Ensemble = reject when its estimate of the remaining shelf life is below 0; '+ conformal' = the photograph decides only "
       "when its 90% interval does not cross 0, otherwise the days rule decides. In P3, sensitivity was "
       f"{s3.loc['Days rule', 'Sensitivity [95% CI]']} for the days rule and {s3.loc['Ensemble + DAH', 'Sensitivity [95% CI]']} for "
       f"the ensemble + DAH, and specificity {s3.loc['Days rule', 'Specificity [95% CI]']} and {s3.loc['Ensemble + DAH', 'Specificity [95% CI]']} "

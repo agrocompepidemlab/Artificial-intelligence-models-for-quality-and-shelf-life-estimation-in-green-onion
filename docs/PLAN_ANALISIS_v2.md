@@ -104,3 +104,9 @@ Todos hechos el 9 nov 2026, **antes** de entrenar cualquier modelo v2 y sin ver 
 8. **Terminología** (10 nov, después de los resultados; no cambia ningún análisis): los dos grupos de cinco
    genotipos fotografiados en días distintos, antes «lotes de captura», se llaman **grupos de fotografía**, y P4
    se describe como «genotipos y días de foto no vistos»; el producto evaluado, antes «lote», se llama **muestra**.
+9. **Rechazo = vida útil restante < 0** (11 nov, después de los resultados). El plan decía ≤ 0. Con el tope de 14 d,
+   ANTSRO029 y ANTSNC003 (t50 en línea 14,1 y 15,4 d) tienen vida útil restante 0 a 14 DAH y quedaban rechazados
+   aunque más de la mitad de los consumidores todavía los acepta. Con < 0 se rechaza solo cuando el DAH supera la
+   vida útil, la misma definición del GQI (Fase 2). Cambian solo la verdad de la decisión (35,1 % de fotos a rechazar,
+   antes 40,2 %), la tabla D12, la Tabla 3b y la columna «Rejected from» de la Tabla 1; los modelos y las
+   predicciones no cambian.
